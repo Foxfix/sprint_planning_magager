@@ -33,8 +33,14 @@ const labelColors = [
 ]
 
 export function TaskCard({ task, onClick, isDragging, sprints = [] }: TaskCardProps) {
+  const taskSprint = task.sprintId ? sprints.find((s) => s.id === task.sprintId) : null
+
+  // Disable dragging for all DONE tasks (both in completed sprints and active sprints)
+  const isLocked = task.status === 'DONE'
+
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: task.id,
+    disabled: isLocked,
   })
 
   const style = {
@@ -44,7 +50,6 @@ export function TaskCard({ task, onClick, isDragging, sprints = [] }: TaskCardPr
   }
 
   const TypeIcon = taskTypeIcons[task.type]
-  const taskSprint = task.sprintId ? sprints.find((s) => s.id === task.sprintId) : null
 
   return (
     <div
@@ -53,7 +58,11 @@ export function TaskCard({ task, onClick, isDragging, sprints = [] }: TaskCardPr
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className={`bg-white border rounded-lg p-3 shadow-sm transition-shadow ${
+        isLocked
+          ? 'border-green-300 bg-green-50 cursor-default opacity-90'
+          : 'border-gray-200 hover:shadow-md cursor-pointer'
+      }`}
     >
       <div className="flex items-start justify-between mb-2">
         <span className="text-xs font-mono text-gray-500">

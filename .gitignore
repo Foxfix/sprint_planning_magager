@@ -22,7 +22,9 @@ build/
 # IDE
 .vscode/
 .idea/
+.claude/
 *.swp
+.swc/
 *.swo
 *~
 
@@ -44,3 +46,23 @@ postgres_data/
 .cache/
 .temp/
 .tmp/
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfplan
+terraform/terraform.tfvars
+terraform/.terraformrc
+terraform/crash.log
+
+# AWS & Secrets
+.aws/
+*.pem
+*.ppk
+.env.prod
+.env.production
+
+# CI/CD
+.github/secrets.yml

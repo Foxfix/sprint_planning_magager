@@ -9,6 +9,7 @@ import { AuthRequest } from '../middleware/auth';
 export const registerValidation = [
   body('email').isEmail().withMessage('Valid email is required'),
   body('name').trim().notEmpty().withMessage('Name is required'),
+  body('login').optional().trim().isLength({ min: 3 }).withMessage('Login must be at least 3 characters'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
 ];
 
@@ -23,11 +24,19 @@ export async function register(req: Request, res: Response) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { email, name, password } = req.body;
+  const { email, name, password, login } = req.body;
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     throw new AppError(409, 'Email already registered');
+  }
+
+  // Check if login is already taken
+  if (login) {
+    const existingLogin = await prisma.user.findUnique({ where: { login } });
+    if (existingLogin) {
+      throw new AppError(409, 'Login already taken');
+    }
   }
 
   const passwordHash = await hashPassword(password);
@@ -36,11 +45,13 @@ export async function register(req: Request, res: Response) {
     data: {
       email,
       name,
+      login,
       passwordHash,
     },
     select: {
       id: true,
       email: true,
+      login: true,
       name: true,
       avatarUrl: true,
       createdAt: true,
@@ -79,6 +90,7 @@ export async function login(req: Request, res: Response) {
     user: {
       id: user.id,
       email: user.email,
+      login: user.login,
       name: user.name,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
@@ -93,6 +105,7 @@ export async function getMe(req: AuthRequest, res: Response) {
     select: {
       id: true,
       email: true,
+      login: true,
       name: true,
       avatarUrl: true,
       createdAt: true,

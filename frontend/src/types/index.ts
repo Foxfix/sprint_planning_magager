@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   email: string;
+  login?: string;
   name: string;
   avatarUrl?: string;
   createdAt: string;
@@ -55,7 +56,7 @@ export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 export interface Task {
   id: string;
   projectId: string;
-  sprintId?: string;
+  sprintId?: string | null;
   taskNumber: number;
   title: string;
   description?: string;

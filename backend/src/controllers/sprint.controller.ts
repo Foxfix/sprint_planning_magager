@@ -169,6 +169,19 @@ export async function completeSprint(req: AuthRequest, res: Response) {
 
   await verifyProjectAccess(sprint.projectId, userId);
 
+  // Move all incomplete tasks back to backlog
+  await prisma.task.updateMany({
+    where: {
+      sprintId: id,
+      status: {
+        not: 'DONE',
+      },
+    },
+    data: {
+      sprintId: null,
+    },
+  });
+
   const updatedSprint = await prisma.sprint.update({
     where: { id },
     data: { status: 'COMPLETED' },

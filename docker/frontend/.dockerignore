@@ -1,0 +1,33 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Next.js build output
+.next
+out
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Logs
+logs
+*.log

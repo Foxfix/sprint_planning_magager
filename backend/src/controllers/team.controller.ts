@@ -42,6 +42,7 @@ export async function createTeam(req: AuthRequest, res: Response) {
             select: {
               id: true,
               email: true,
+              login: true,
               name: true,
               avatarUrl: true,
             },
@@ -72,6 +73,7 @@ export async function getTeams(req: AuthRequest, res: Response) {
             select: {
               id: true,
               email: true,
+              login: true,
               name: true,
               avatarUrl: true,
             },
@@ -109,6 +111,7 @@ export async function getTeam(req: AuthRequest, res: Response) {
             select: {
               id: true,
               email: true,
+              login: true,
               name: true,
               avatarUrl: true,
             },
@@ -158,6 +161,7 @@ export async function updateTeam(req: AuthRequest, res: Response) {
             select: {
               id: true,
               email: true,
+              login: true,
               name: true,
               avatarUrl: true,
             },

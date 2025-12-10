@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { KanbanBoard } from '@/components/kanban/KanbanBoard'
 import { SprintSelector } from '@/components/sprint/SprintSelector'
 import { api } from '@/lib/api'
-import type { Project, Task, TaskStatus, Sprint } from '@/types'
+import type { Project, Task, TaskStatus, Sprint, User } from '@/types'
 
 export default function ProjectPage() {
   const params = useParams()
@@ -21,6 +21,7 @@ export default function ProjectPage() {
   const [viewBacklog, setViewBacklog] = useState(false)
   const [viewAllTasks, setViewAllTasks] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [teamMembers, setTeamMembers] = useState<User[]>([])
 
   useEffect(() => {
     loadData()
@@ -41,6 +42,18 @@ export default function ProjectPage() {
       const active = sprintsData.find((s: Sprint) => s.status === 'ACTIVE')
       setActiveSprint(active || null)
       setSelectedSprint(active || null)
+
+      // Load team members if project has a team
+      if (projectData.teamId) {
+        try {
+          const teamData = await api.teams.getById(projectData.teamId)
+          const members = teamData.members?.map((m: any) => m.user) || []
+          setTeamMembers(members)
+        } catch (error) {
+          // Error loading team members
+          setTeamMembers([])
+        }
+      }
     } catch (error) {
       // Error loading project data
     } finally {
@@ -72,7 +85,7 @@ export default function ProjectPage() {
     }
   }
 
-  const handleTaskMove = async (taskId: string, newStatus: TaskStatus, newSprintId?: string | null) => {
+  const handleTaskMove = async (taskId: string, newStatus: TaskStatus, newSprintId?: string | null, assigneeId?: string | null) => {
     try {
       const task = tasks.find((t) => t.id === taskId)
       if (!task) return
@@ -81,15 +94,20 @@ export default function ProjectPage() {
         status: newStatus,
         position: 0,
         sprintId: newSprintId !== undefined ? newSprintId : task.sprintId,
+        assigneeId: assigneeId !== undefined ? assigneeId : task.assignee?.id,
       })
 
+      // Update local state
       setTasks((prev) =>
         prev.map((t) =>
           t.id === taskId
             ? {
                 ...t,
                 status: newStatus,
-                sprintId: newSprintId !== undefined ? (newSprintId || undefined) : t.sprintId
+                sprintId: newSprintId !== undefined ? newSprintId : t.sprintId,
+                assignee: assigneeId !== undefined
+                  ? (assigneeId ? teamMembers.find(m => m.id === assigneeId) : undefined)
+                  : t.assignee
               }
             : t
         )
@@ -158,7 +176,7 @@ export default function ProjectPage() {
   }
 
   const sprintTasks = viewBacklog
-    ? tasks.filter((t) => !t.sprintId) // Show only backlog tasks
+    ? tasks.filter((t) => !t.sprintId && t.status !== 'DONE') // Show only backlog tasks (not completed)
     : viewAllTasks
     ? tasks // Show all tasks
     : selectedSprint
@@ -217,6 +235,9 @@ export default function ProjectPage() {
             activeSprint={activeSprint}
             allTasks={tasks}
             viewingActiveSprint={!viewBacklog && !viewAllTasks && !!activeSprint && selectedSprint?.id === activeSprint.id}
+            teamMembers={teamMembers}
+            viewBacklog={viewBacklog}
+            viewingSprint={!viewBacklog && !viewAllTasks && !!selectedSprint}
           />
         </div>
       </main>

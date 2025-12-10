@@ -2,6 +2,7 @@
 
 Enterprise-grade sprint planning and task management system built with microservices architecture.
 
+
 ## Architecture
 
 This project consists of three independent services:
@@ -156,39 +157,6 @@ Once all services are running (look for "Server running" messages), open your br
 4. You'll be automatically logged in and redirected to the dashboard
 
 
-
-## Project Structure
-
-```
-sprint_planning/
-├── frontend/              # Frontend microservice
-│   ├── src/
-│   │   ├── app/          # Next.js pages (App Router)
-│   │   ├── components/   # React components
-│   │   ├── lib/          # Utilities and API client
-│   │   └── types/        # TypeScript types
-│   ├
-│   ├── package.json
-│   └── README.md
-│
-├── backend/              # Backend microservice
-│   ├── src/
-│   │   ├── config/       # Configuration
-│   │   ├── controllers/  # Route controllers
-│   │   ├── middleware/   # Express middleware
-│   │   ├── routes/       # API routes
-│   │   ├── services/     # Business logic
-│   │   └── utils/        # Utilities
-│   ├── prisma/
-│   │   └── schema.prisma # Database schema
-│   |
-│   ├── package.json
-│   └── README.md
-│
-├
-└── README.md            # This file
-```
-
 ## Core Features
 
 ### 1. Team & Project Management
@@ -209,11 +177,6 @@ sprint_planning/
 - Drag & drop tasks between columns
 - Quick actions (assign, edit, comment)
 
-### 4. Task Details
-- Detailed task modal
-- Edit all properties inline
-- Activity log (change history)
-- Comments section
 
 ## API Documentation
 

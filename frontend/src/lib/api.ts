@@ -26,6 +26,13 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Request failed' }));
+
+    // Auto logout on 404 User not found (stale token)
+    if (response.status === 404 && error.error === 'User not found' && typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+
     throw new ApiError(response.status, error.error || 'Request failed');
   }
 
@@ -121,7 +128,7 @@ export const api = {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
-    move: (id: string, data: { status: string; position: number; sprintId?: string | null }) =>
+    move: (id: string, data: { status: string; position: number; sprintId?: string | null; assigneeId?: string | null }) =>
       fetchApi<any>(`/api/tasks/${id}/move`, {
         method: 'PATCH',
         body: JSON.stringify(data),

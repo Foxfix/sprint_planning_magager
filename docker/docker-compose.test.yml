@@ -1,0 +1,32 @@
+services:
+  backend-test:
+    build:
+      context: ../backend
+      dockerfile: ../docker/backend/Dockerfile.test
+    container_name: sprint_planning_backend_test
+    environment:
+      NODE_ENV: test
+      JWT_SECRET: test_jwt_secret
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+    networks:
+      - sprint_planning_test
+
+  frontend-test:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend/Dockerfile.test
+    container_name: sprint_planning_frontend_test
+    environment:
+      NODE_ENV: test
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    networks:
+      - sprint_planning_test
+
+networks:
+  sprint_planning_test:
+    driver: bridge

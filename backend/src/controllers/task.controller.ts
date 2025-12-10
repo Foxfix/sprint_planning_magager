@@ -318,15 +318,31 @@ export async function updateTask(req: AuthRequest, res: Response) {
 
 export async function moveTask(req: AuthRequest, res: Response) {
   const { id } = req.params;
-  const { status, position, sprintId } = req.body;
+  const { status, position, sprintId, assigneeId } = req.body;
   const userId = req.user!.userId;
 
-  const task = await prisma.task.findUnique({ where: { id } });
+  const task = await prisma.task.findUnique({
+    where: { id },
+    include: {
+      sprint: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+    },
+  });
+
   if (!task) {
     throw new AppError(404, 'Task not found');
   }
 
   await verifyProjectAccess(task.projectId, userId);
+
+  // Prevent moving DONE tasks from completed sprints
+  if (task.status === 'DONE' && task.sprint?.status === 'COMPLETED' && status !== 'DONE') {
+    throw new AppError(400, 'Cannot move completed tasks from a finished sprint');
+  }
 
   const updatedTask = await prisma.task.update({
     where: { id },
@@ -334,6 +350,7 @@ export async function moveTask(req: AuthRequest, res: Response) {
       status,
       position,
       sprintId: sprintId !== undefined ? sprintId : undefined,
+      assigneeId: assigneeId !== undefined ? assigneeId : undefined,
     },
     include: {
       creator: {
@@ -341,6 +358,7 @@ export async function moveTask(req: AuthRequest, res: Response) {
           id: true,
           name: true,
           email: true,
+          login: true,
           avatarUrl: true,
         },
       },
@@ -349,6 +367,7 @@ export async function moveTask(req: AuthRequest, res: Response) {
           id: true,
           name: true,
           email: true,
+          login: true,
           avatarUrl: true,
         },
       },
@@ -363,6 +382,18 @@ export async function moveTask(req: AuthRequest, res: Response) {
         action: 'status changed',
         oldValue: task.status,
         newValue: status,
+      },
+    });
+  }
+
+  if (task.assigneeId !== assigneeId && assigneeId !== undefined) {
+    await prisma.activityLog.create({
+      data: {
+        taskId: id,
+        userId,
+        action: 'assignee changed',
+        oldValue: task.assigneeId || 'unassigned',
+        newValue: assigneeId || 'unassigned',
       },
     });
   }
