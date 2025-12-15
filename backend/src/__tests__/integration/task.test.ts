@@ -1,11 +1,12 @@
 import request from 'supertest';
-import express, { Express } from 'express';
+import express, { Express, NextFunction } from 'express';
 import taskRoutes from '@/routes/task.routes';
 import { errorHandler } from '@/middleware/errorHandler';
+import { AuthRequest } from '@/middleware/auth';
 import prisma from '@/config/database';
 
 jest.mock('@/middleware/auth', () => ({
-  authenticate: (req: any, res: any, next: any) => {
+  authenticate: (req: AuthRequest, _res: Express.Response, next: NextFunction) => {
     req.user = { userId: 'user-123', email: 'test@example.com' };
     next();
   },

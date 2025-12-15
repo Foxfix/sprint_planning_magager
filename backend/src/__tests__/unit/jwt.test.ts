@@ -73,7 +73,7 @@ describe('JWT Utilities', () => {
       const token = 'expired.jwt.token';
 
       (jwt.verify as jest.Mock).mockImplementation(() => {
-        const error: any = new Error('Token expired');
+        const error = new Error('Token expired') as Error & { name: string };
         error.name = 'TokenExpiredError';
         throw error;
       });

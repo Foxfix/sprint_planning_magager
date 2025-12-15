@@ -303,7 +303,7 @@ export function SprintSelector({
           {sprints.length === 0 && (
             <div className="p-6 text-center text-gray-500">
               <p className="text-sm">No sprints created yet</p>
-              <p className="text-xs mt-1">Click "New Sprint" to create one</p>
+              <p className="text-xs mt-1">Click &quot;New Sprint&quot; to create one</p>
             </div>
           )}
 

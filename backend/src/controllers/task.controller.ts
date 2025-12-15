@@ -109,7 +109,7 @@ export async function getTasks(req: AuthRequest, res: Response) {
 
   await verifyProjectAccess(projectId, userId);
 
-  const where: any = { projectId };
+  const where: Record<string, unknown> = { projectId };
   if (status) where.status = status;
   if (sprintId) where.sprintId = sprintId;
   if (assigneeId) where.assigneeId = assigneeId;

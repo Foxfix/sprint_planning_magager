@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,11 +16,7 @@ export default function TeamPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadData()
-  }, [teamId])
-
-  const loadData = async () => {
+  const loadData = React.useCallback(async () => {
     try {
       const [teamData, projectsData] = await Promise.all([
         api.teams.getById(teamId),
@@ -33,7 +29,11 @@ export default function TeamPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [teamId])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleCreateProject = async () => {
     const name = prompt('Enter project name:')

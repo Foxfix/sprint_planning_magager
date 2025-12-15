@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { KanbanBoard } from '@/components/kanban/KanbanBoard'
@@ -23,11 +23,7 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true)
   const [teamMembers, setTeamMembers] = useState<User[]>([])
 
-  useEffect(() => {
-    loadData()
-  }, [projectId])
-
-  const loadData = async () => {
+  const loadData = React.useCallback(async () => {
     try {
       const [projectData, sprintsData, tasksData] = await Promise.all([
         api.projects.getById(projectId),
@@ -59,7 +55,11 @@ export default function ProjectPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [projectId])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleSprintChange = (sprint: Sprint | null, isBacklog?: boolean, showAllTasks?: boolean) => {
     setSelectedSprint(sprint)
