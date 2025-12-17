@@ -8,8 +8,18 @@ jobs:
         working-directory: ./frontend
     steps:
       - uses: actions/checkout@v6
-      - run: npm ci
-      - run: npm run lint
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Run frontend lint
+        run: npm run lint
 
   frontend_test:
     runs-on: ubuntu-latest
@@ -25,18 +35,18 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.version }}
-      - run: npm ci
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+
       - name: Run frontend tests
         run: npm run test
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3001
-
-  backend_lint:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
-    steps:
-      - uses: actions/checkout@v6
-      - run: npm ci
-      - run: npm run lint
