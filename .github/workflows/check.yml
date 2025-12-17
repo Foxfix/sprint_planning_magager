@@ -11,6 +11,18 @@ jobs:
       - run: npm ci
       - run: npm run lint
 
+  frontend_test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v6
+      - run: npm ci
+      - name: Run frontend tests
+        run: npm run test
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
 
   backend_lint:
     runs-on: ubuntu-latest
