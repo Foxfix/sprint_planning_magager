@@ -13,6 +13,7 @@ jobs:
 
   frontend_test:
     runs-on: ubuntu-latest
+    needs: frontend_lint
     defaults:
       run:
         working-directory: ./frontend
