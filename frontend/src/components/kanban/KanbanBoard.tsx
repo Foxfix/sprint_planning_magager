@@ -94,7 +94,7 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskClick, sprints, activeSpr
       }
       // If dropped on a task, use that task's status
       else if (droppedOnTask) {
-        newStatus = droppedOnTask.status
+        newStatus = droppedOnTask.status as TaskStatus
         // If task is from backlog and we're viewing a sprint, assign it to that sprint
         if (!task.sprintId && (viewingActiveSprint || viewingSprint) && activeSprint) {
           newSprintId = activeSprint.id
