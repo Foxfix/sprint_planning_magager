@@ -1,0 +1,83 @@
+name: Docker Production Checks
+
+on:
+  pull_request:
+    paths:
+      - 'docker/**'
+      - '**/Dockerfile*'
+      - 'backend/package*.json'
+      - 'frontend/package*.json'
+      - '.github/workflows/docker-checks.yml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'docker/**'
+      - '**/Dockerfile*'
+      - 'backend/package*.json'
+      - 'frontend/package*.json'
+  workflow_dispatch:
+
+jobs:
+  hadolint:
+    name: Lint Dockerfiles
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Lint Backend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: docker/backend/Dockerfile.prod
+          failure-threshold: warning
+
+      - name: Lint Frontend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: docker/frontend/Dockerfile.prod
+          failure-threshold: warning
+
+  build-and-test:
+    name: Build and Test Images
+    runs-on: ubuntu-latest
+    needs: hadolint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build backend production image
+        run: docker build -f docker/backend/Dockerfile.prod -t sprint-backend:test ./backend
+
+      - name: Test backend container
+        run:
+          docker run -d --name backend-test \
+            -e DATABASE_URL=postgresql://test:test@localhost:5432/test_db \
+            -e JWT_SECRET=test-secret-key \
+            -e NODE_ENV=production \
+            sprint-backend:test
+        
+          sleep 5
+          
+          docker ps | grep backend-test || (echo "Backend container failed to start" && exit 1)
+          
+          docker stop backend-test
+          docker rm backend-test
+
+      - name: Build frontend production Image
+        run: docker build -f docker/frontend/Dockerfile.prod \
+            --build-arg NEXT_PUBLIC_API_URL=http://localhost:3001 \
+            -t sprint-frontend:test \
+            ./frontend
+
+      - name: Test frontend container
+        run:
+          docker run -d --name frontend-test -p 3000:3000 sprint-frontend:test
+          sleep 5
+          docker ps | grep frontend-test || (echo "Frontend container failed to start" && exit 1)
+          docker stop frontend-test
+          docker rm frontend-test
+
