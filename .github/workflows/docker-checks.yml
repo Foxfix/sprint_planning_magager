@@ -53,7 +53,7 @@ jobs:
         run: docker build -f docker/backend/Dockerfile.prod -t sprint-backend:test ./backend
 
       - name: Test backend container
-        run:
+        run: |
           docker run -d --name backend-test \
             -e DATABASE_URL=postgresql://test:test@localhost:5432/test_db \
             -e JWT_SECRET=test-secret-key \
@@ -74,7 +74,7 @@ jobs:
             ./frontend
 
       - name: Test frontend container
-        run:
+        run: |
           docker run -d --name frontend-test -p 3000:3000 sprint-frontend:test
           sleep 5
           docker ps | grep frontend-test || (echo "Frontend container failed to start" && exit 1)
