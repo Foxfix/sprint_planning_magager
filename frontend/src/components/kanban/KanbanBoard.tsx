@@ -69,7 +69,7 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskClick, sprints, activeSpr
     }
 
     // Determine the new status based on where it was dropped
-    let newStatus = task.status
+    let newStatus: TaskStatus = task.status
     let newSprintId: string | undefined | null = task.sprintId
 
     // Special handling for backlog drop zone
@@ -94,7 +94,7 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskClick, sprints, activeSpr
       }
       // If dropped on a task, use that task's status
       else if (droppedOnTask) {
-        newStatus = droppedOnTask.status as TaskStatus
+        newStatus = droppedOnTask.status
         // If task is from backlog and we're viewing a sprint, assign it to that sprint
         if (!task.sprintId && (viewingActiveSprint || viewingSprint) && activeSprint) {
           newSprintId = activeSprint.id
