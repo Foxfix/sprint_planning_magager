@@ -59,11 +59,24 @@ jobs:
             -e JWT_SECRET=test-secret-key \
             -e NODE_ENV=production \
             sprint-backend:test
-        
+          
+          echo "Waiting for backend to start..."
           sleep 5
           
-          docker ps | grep backend-test || (echo "Backend container failed to start" && exit 1)
+          echo "Checking container status:"
+          docker ps -a | grep backend-test
           
+          echo "Container logs:"
+          docker logs backend-test
+          
+          if ! docker ps | grep backend-test; then
+            echo "Backend container failed to start!"
+            docker logs backend-test
+            docker rm backend-test
+            exit 1
+          fi
+          
+          echo "Backend container is running!"
           docker stop backend-test
           docker rm backend-test
 
