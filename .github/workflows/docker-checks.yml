@@ -17,6 +17,7 @@ on:
       - '**/Dockerfile*'
       - 'backend/package*.json'
       - 'frontend/package*.json'
+      - '.github/workflows/docker-checks.yml'
   workflow_dispatch:
 
 jobs:
@@ -45,6 +46,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: hadolint
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -55,13 +71,14 @@ jobs:
       - name: Test backend container
         run: |
           docker run -d --name backend-test \
+            --network host \
             -e DATABASE_URL=postgresql://test:test@localhost:5432/test_db \
             -e JWT_SECRET=test-secret-key \
             -e NODE_ENV=production \
             sprint-backend:test
           
           echo "Waiting for backend to start..."
-          sleep 5
+          sleep 10
           
           echo "Checking container status:"
           docker ps -a | grep backend-test
