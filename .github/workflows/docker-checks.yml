@@ -98,7 +98,8 @@ jobs:
           docker rm backend-test
 
       - name: Build frontend production Image
-        run: docker build -f docker/frontend/Dockerfile.prod \
+        run: |
+            docker build -f docker/frontend/Dockerfile.prod \
             --build-arg NEXT_PUBLIC_API_URL=http://localhost:3001 \
             -t sprint-frontend:test \
             ./frontend
