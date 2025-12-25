@@ -17,7 +17,6 @@ on:
       - '**/Dockerfile*'
       - 'backend/package*.json'
       - 'frontend/package*.json'
-      - '.github/workflows/docker-checks.yml'
   workflow_dispatch:
 
 jobs:
