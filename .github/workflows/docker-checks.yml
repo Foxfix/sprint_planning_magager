@@ -77,7 +77,7 @@ jobs:
             sprint-backend:test
           
           echo "Waiting for backend to start..."
-          sleep 10
+          sleep 5
           
           echo "Checking container status:"
           docker ps -a | grep backend-test
